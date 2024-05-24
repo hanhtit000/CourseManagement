@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "y0XBu6Ttcv5nXgRuJt1haFoHtNs4aqJ3KeswseFygcrTUWnOO2ye+6sfH1OZL67VssBI+/FuAk8wp660juz8QA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\hanh\\Desktop\\K8\\Project_ASPDotnetCoreWebAPI_CourseManagementSystem-main\\Project_CreateAPI\\Project_CallAPI\\Project_CallAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\hanh\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

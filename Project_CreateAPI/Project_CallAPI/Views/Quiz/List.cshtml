@@ -1,0 +1,36 @@
+﻿@model Quiz
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">@Model.Title</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>List Students attempt quiz</p>
+        </div>
+        <div class="col-md-12 mt-4 animate__animated animate__fadeInRight">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Score</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.QuizAttendances)
+                    {
+                        <tr>
+                            <td>@item.Student.Username</td>
+                            <td>@item.Student.Email</td>
+                            <td>@item.Score / @Model.Questions.Count</td>
+                            <td><a asp-action="DeleteAttempt" asp-controller="Quiz" asp-route-id="@item.Student.UserId" asp-route-quizId="@item.QuizId" class="btn btn-danger">Re-attempt</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,46 @@
+﻿@model Quiz
+
+<div class="container pb-5 animate__animated animate__fadeInRight">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">@Model.Title</h1>
+    </div>
+
+    <hr class="mt-5" style="border-top: 3px solid black;">
+
+    <form asp-action="Attempt" asp-controller="Quiz" method="post">
+        @foreach (var question in Model.Questions)
+        {
+            <div class="card w-100 mb-4">
+                <div class="card-body">
+                    <input type="hidden" name="quizId" value="@Model.QuizId">
+                    <h5 class="card-title">Question: @question.Question1</h5>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question-@question.QuestionId" id="optionA-@question.QuestionId" value="A" required>
+                        <label class="form-check-label" for="optionA-@question.QuestionId">
+                            Option A: @question.OptionA
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question-@question.QuestionId" id="optionB-@question.QuestionId" value="B" required>
+                        <label class="form-check-label" for="optionB-@question.QuestionId">
+                            Option B: @question.OptionB
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question-@question.QuestionId" id="optionC-@question.QuestionId" value="C" required>
+                        <label class="form-check-label" for="optionC-@question.QuestionId">
+                            Option C: @question.OptionC
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question-@question.QuestionId" id="optionD-@question.QuestionId" value="D" required>
+                        <label class="form-check-label" for="optionD-@question.QuestionId">
+                            Option D: @question.OptionD
+                        </label>
+                    </div>
+                </div>
+            </div>
+        }
+        <button type="submit" class="btn btn-primary">Submit Quiz</button>
+    </form>
+</div>

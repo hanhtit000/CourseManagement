@@ -1,0 +1,125 @@
+﻿@model Assignment
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">@Model.Title</h1>
+        <button class="btn btn-success" onclick="DownloadAll()">Download All Submissions</button>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>List submission</p>
+        </div>
+        <div class="col-md-12 mt-4 animate__animated animate__fadeInRight">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>File Submission</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.StudentAssignments)
+                    {
+                        <tr>
+                            <td>@item.Student.Username</td>
+                            <td>@item.Student.Email</td>
+                            @if (!string.IsNullOrEmpty(item.File))
+                            {
+                                <td><a href="#" class="bi bi-box-seam-fill" onclick="downloadSubmission('@item.File')"> @item.File.Substring(15)</a></td>
+                            }
+                            else
+                            {
+                                <td><span class="text-muted">No file submitted</span></td>
+                            }
+                            <td>
+                                @if (item.SubmissionDate != null)
+                                {
+                                    if (Model.Deadline > item.SubmissionDate)
+                                    {
+                                        <span class="text-success">Submitted Early</span>
+                                    }
+                                    else if (Model.Deadline < item.SubmissionDate)
+                                    {
+                                        <span class="text-danger">Submitted Late</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not yet submitted</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function downloadSubmission(fileName) {
+        var apiUrl = 'http://localhost:5091/api/Download/submission?fileName=' + fileName;
+
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            xhrFields: {
+                responseType: 'blob' // Set the response type to blob
+            },
+            success: function (data) {
+                // Create a temporary anchor element to trigger the file download
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    function DownloadAll() {
+        var apiUrl = 'http://localhost:5091/api/Download/all-submissions';
+        var fileNames = [];
+
+    @foreach (var item in Model.StudentAssignments)
+    {
+        if (!string.IsNullOrEmpty(item.File))
+        {
+            <text>fileNames.push('@item.File'); </text>
+        }
+    }
+
+            $.ajax({
+                url: apiUrl,
+                type: 'POST',
+                data: JSON.stringify(fileNames),
+                contentType: 'application/json',
+                xhrFields: {
+                    responseType: 'blob' // Set the response type to blob
+                },
+                success: function (data) {
+                    // Create a temporary anchor element to trigger the file download
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(data);
+                    a.href = url;
+                    a.download = 'submissions.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+    }
+</script>

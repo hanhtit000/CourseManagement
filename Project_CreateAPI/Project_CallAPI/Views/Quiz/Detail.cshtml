@@ -1,0 +1,142 @@
+﻿@model Quiz
+
+<div class="container pb-5 animate__animated animate__fadeInRight">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">@Model.Title</h1>
+        <div class="btn-group">
+            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add Question</a>
+            <a asp-action="List" asp-controller="Quiz" asp-route-id="@Model.QuizId" class="btn btn-primary ml-3">View List Attempts</a>
+        </div>      
+    </div>
+
+    <hr class="mt-5" style="border-top: 3px solid black;">
+
+    @foreach (var question in Model.Questions)
+    {
+        <div class="card w-100 mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Question: @question.Question1</h5>
+                <p class="card-text">Option A: @question.OptionA</p>
+                <p class="card-text">Option B: @question.OptionB</p>
+                <p class="card-text">Option C: @question.OptionC</p>
+                <p class="card-text">Option D: @question.OptionD</p>
+                <p class="card-text">Correct Option: @question.CorrectOption</p>
+                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#editQuestionModal-@question.QuestionId">Edit</a>
+                <a asp-action="Delete" asp-controller="Question" asp-route-id="@question.QuestionId" asp-route-quizId="@Model.QuizId" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addQuestionModalLabel">Add Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Add" asp-controller="Question" method="post">
+                    <div class="mb-3">
+                        <input hidden type="text" class="form-control" id="quizId" name="quizId" value="@Model.QuizId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="question">Question</label>
+                        <textarea class="form-control" id="question" name="question1" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionA">Option A</label>
+                        <input type="text" class="form-control" id="optionA" name="optionA" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionB">Option B</label>
+                        <input type="text" class="form-control" id="optionB" name="optionB" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionC">Option C</label>
+                        <input type="text" class="form-control" id="optionC" name="optionC" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionD">Option D</label>
+                        <input type="text" class="form-control" id="optionD" name="optionD" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correctOption">Correct Option</label>
+                        <select class="form-control" id="correctOption" name="correctOption" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach(var question in Model.Questions)
+{
+    <div class="modal fade" id="editQuestionModal-@question.QuestionId" tabindex="-1" aria-labelledby="editQuestionModalLabel-@question.QuestionId" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editQuestionModalLabel-@question.QuestionId">Edit Question</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Update" asp-controller="Question" method="post">
+                    <div class="mb-3">
+                        <input hidden type="text" class="form-control" id="questionId" name="questionId" value="@question.QuestionId" readonly>
+                        <input hidden type="text" class="form-control" id="quizId" name="quizId" value="@question.QuizId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="question">Question</label>
+                        <textarea class="form-control" id="question" name="question1" required>@question.Question1</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionA">Option A</label>
+                        <input type="text" class="form-control" id="optionA" name="optionA" value="@question.OptionA" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionB">Option B</label>
+                        <input type="text" class="form-control" id="optionB" name="optionB" value="@question.OptionB" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionC">Option C</label>
+                        <input type="text" class="form-control" id="optionC" name="optionC" value="@question.OptionC" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="optionD">Option D</label>
+                        <input type="text" class="form-control" id="optionD" name="optionD" value="@question.OptionD" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correctOption">Correct Option</label>
+                            <select class="form-control" id="correctOption" name="correctOption" required>
+                                @{
+                                    var options = new List<SelectListItem>
+                            {
+                            new SelectListItem { Value = "A", Text = "A", Selected = question.CorrectOption == "A" },
+                            new SelectListItem { Value = "B", Text = "B", Selected = question.CorrectOption == "B" },
+                            new SelectListItem { Value = "C", Text = "C", Selected = question.CorrectOption == "C" },
+                            new SelectListItem { Value = "D", Text = "D", Selected = question.CorrectOption == "D" }
+                            };
+                                    foreach (var option in options)
+                                    {
+                                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                    }
+                                }
+                            </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+}

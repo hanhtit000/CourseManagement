@@ -1,0 +1,81 @@
+﻿@model List<Course>
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">My courses</h1>
+        <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addCourseModal">Add Course</a>
+    </div>
+
+    <hr class="mt-5" style="border-top: 3px solid black;">
+    
+    <div class="row filter-container">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-3 mt-4 animate__animated animate__fadeInRight filter-item grouping">
+                <div class="card" style="width: 17rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@item.Description</p>
+                        <a asp-action="Detail" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-info">View</a>
+                        <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#updateCourseModal-@item.CourseId">Edit</a>
+                        <a asp-action="Delete" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="updateCourseModal-@item.CourseId" tabindex="-1" role="dialog" aria-labelledby="updateCourseModalLabel-@item.CourseId" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateCourseModalLabel-@item.CourseId">Update Course</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-action="Update" asp-controller="Course" method="post">
+                                <input type="hidden" name="id" value="@item.CourseId" />
+                                <div class="form-group">
+                                    <label class="form-label">Title</label>
+                                    <input type="text" class="form-control" name="title" value="@item.Title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" rows="3" required>@item.Description</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+<div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCourseModalLabel">Add Course</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Add" asp-controller="Course" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

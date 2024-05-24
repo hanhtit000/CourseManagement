@@ -1,0 +1,116 @@
+﻿@model List<Course>
+@using Project_CallAPI.Models
+@{
+    string user = Context.Session.GetString("user") ?? "";
+    string lecturer = Context.Session.GetString("lecturer") ?? "";
+}
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">CMS - Course Management System</h1>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <form class="form-inline" asp-action="Index" asp-controller="Home" method="get" style="display:flex">
+                <select name="lecturer" id="lecturer" class="text-black btn btn-group== dropdown-toggle" style="border: 1px solid black; margin-right: 10px">
+                    <option value="" selected>All</option>
+                    @{
+                        foreach (var item in ViewBag.FilterData)
+                        {
+                            if (ViewBag.Lecturer!=null && item.UserId == Int32.Parse(ViewBag.Lecturer))
+                            {
+                                <option value="@item.UserId" selected>@item.Username</option>
+                            }
+                            else
+                            {
+                                <option value="@item.UserId">@item.Username</option>
+
+                            }
+                        }
+                    }
+                </select>
+                <div class="input-group">
+                    <input type="text" name="keyword" class="form-control" placeholder="Find a course" value="@ViewBag.Keyword">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-dark" style="margin-left: 10px;">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <hr class="mt-5" style="border-top: 3px solid black;">
+
+    <div class="row">
+        @if (Model.Count == 0)
+        {
+            <div class="col-md-12">
+                <p>No courses found.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-3 mt-4 animate__animated animate__fadeInRight">
+                    <div class="card" style="width: auto; height:auto">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text"><b>Course creator:</b> @item.Lecturer.Username</p>
+                            @if(lecturer != "")
+                            {
+                                <a asp-action="Detail" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-info">View</a>
+                            }                            
+                            @{
+                                bool isEnrolled = false;
+                                if (user != "" && lecturer == "")
+                                {
+                                    User u = JsonConvert.DeserializeObject<User>(user);
+                                    isEnrolled = item.CourseEnrollments.Any(e => e.StudentId == u.UserId);
+                                }
+                            }
+                            @if (isEnrolled && user != "" && lecturer == "")
+                            {
+                                <a asp-action="Detail" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-info">View</a>
+                                <a asp-action="Unenroll" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-danger">Unenroll</a>
+                            }
+                            else if (!isEnrolled && user != "" && lecturer == "")
+                            {
+                                <a asp-action="Enroll" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-success">Enroll</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+</div>
+
+<div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCourseModalLabel">Add Course</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Add" asp-controller="Home" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

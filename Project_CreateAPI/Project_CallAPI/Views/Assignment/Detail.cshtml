@@ -1,0 +1,205 @@
+﻿@model Assignment
+
+@{
+    string user = Context.Session.GetString("user") ?? "";
+    string lecturer = Context.Session.GetString("lecturer") ?? "";
+    User u = JsonConvert.DeserializeObject<User>(user);
+    var studentData = Model.StudentAssignments.FirstOrDefault(s => s.StudentId == u.UserId);
+}
+
+<div class="container pb-5 animate__animated animate__fadeInRight">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">@Model.Title</h1>
+        @if(lecturer != "")
+        {
+            <a asp-action="List" asp-controller="Assignment" asp-route-id="@Model.AssignmentId" class="btn btn-primary">View list submission</a>
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mt-4">
+            @if (Model.Display && user != "" && lecturer == "")
+            {
+                <p>@Model.Description</p>
+            }
+            @if(lecturer != "")
+            {
+                <p>@Model.Description</p>
+            }
+            @if (!string.IsNullOrEmpty(Model.File))
+            {
+                <a href="#" class="bi bi-box-seam-fill" onclick="downloadMaterial('@Model.File')"> @Model.File.Substring(15)</a>
+            }
+        </div>
+        <div class="col-md-12 mt-4">
+            <table class="table">
+                <tr>
+                    <th>Due date</th>
+                    <td>@Model.Deadline</td>
+                </tr>
+                <tr>
+                    <th>File submission</th>
+                    <td>
+                        @if(studentData != null)
+                        {
+                            if (!string.IsNullOrEmpty(studentData.File))
+                            {
+                                <a href="#" class="bi bi-box-seam-fill" onclick="downloadSubmission('@studentData.File')"> @studentData.File.Substring(15)</a>
+                            }                           
+                        }
+                        else
+                        {
+                            <span class="text-muted">No file submitted</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>Submission status</th>
+                    <td>
+                        @if(studentData != null)
+                        {
+                            if (Model.Deadline > studentData.SubmissionDate)
+                            {
+                                <span class="text-success">Submitted Early</span>
+                            }
+                            else if (Model.Deadline < studentData.SubmissionDate)
+                            {
+                                <span class="text-danger">Submitted Late</span>
+                            }                           
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not yet submitted</span>
+                        }
+                    </td>
+                </tr>
+
+            </table>
+            <div class="text-center mt-5">
+                @if(user != "" && lecturer == "")
+                {
+                    var submittedAssignment = Model.StudentAssignments.Any(s => s.StudentId == u.UserId && !string.IsNullOrEmpty(s.File));
+                    if (submittedAssignment)
+                    {
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editSubmissionModal">Edit Submission</a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSubmissionModal">Add Assignment</button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editSubmissionModal" tabindex="-1" aria-labelledby="editSubmissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSubmissionModalLabel">Edit Submission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Update" asp-controller="Submission" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input hidden type="text" class="form-control" id="submissionId" name="submissionId" value="@studentData?.SubmissionId" readonly>
+                        <input hidden type="text" class="form-control" id="assignmentId" name="assignmentId" value="@Model.AssignmentId" readonly>
+                        <input hidden type="text" class="form-control" id="studentId" name="studentId" value="@u.UserId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current File</label>
+                        <input type="text" class="form-control" value="@studentData?.File" readonly>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>  
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addSubmissionModal" tabindex="-1" aria-labelledby="addSubmissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSubmissionModalLabel">Add Submission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Add" asp-controller="Submission" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input hidden type="text" class="form-control" id="assignmentId" name="assignmentId" value="@Model.AssignmentId" readonly>
+                        <input hidden type="text" class="form-control" id="studentId" name="studentId" value="@u.UserId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function downloadMaterial(fileName) {
+        var apiUrl = 'http://localhost:5091/api/Download/material?fileName=' + fileName;
+
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            xhrFields: {
+                responseType: 'blob' // Set the response type to blob
+            },
+            success: function (data) {
+                // Create a temporary anchor element to trigger the file download
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+
+    function downloadSubmission(fileName) {
+        var apiUrl = 'http://localhost:5091/api/Download/submission?fileName=' + fileName;
+
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            xhrFields: {
+                responseType: 'blob' // Set the response type to blob
+            },
+            success: function (data) {
+                // Create a temporary anchor element to trigger the file download
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,25 @@
+﻿@model List<CourseEnrollment>
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mt-4">My enrolled courses</h1>
+    </div>
+
+    <hr class="mt-5" style="border-top: 3px solid black;">
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-3 mt-4 animate__animated animate__fadeInRight">
+                <div class="card" style="width: 17rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Course.Title</h5>
+                        <p class="card-text">@item.Course.Description</p>
+                        <a asp-action="Detail" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-info">View</a>
+                        <a asp-action="Unenroll" asp-controller="Course" asp-route-id="@item.CourseId" class="btn btn-danger">Unenroll</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
